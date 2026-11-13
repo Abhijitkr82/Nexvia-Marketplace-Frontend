@@ -1,0 +1,17 @@
+
+/* Nexvia shared application styles */
+
+.nexvia-page {
+  min-height: 100vh;
+  background: var(--nexvia-page);
+}
+
+.nexvia-surface {
+  background: var(--nexvia-surface);
+  border: 1px solid var(--nexvia-border);
+  box-shadow: var(--nexvia-shadow);
+}
+
+.nexvia-muted {
+  color: var(--nexvia-muted);
+}
