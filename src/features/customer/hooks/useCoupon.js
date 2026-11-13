@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { validateCoupon } from '../../../services/paymentService';
 import { getToken } from '../../../utils/authStorage';
@@ -17,8 +18,11 @@ export default function useCoupon({ cart, navigate }) {
     setCouponMessage('');
   };
 
-  const applyCoupon = async () => {
-    if (!couponCode.trim()) {
+  // Optional code argument supports direct application from Available Offers.
+  const applyCoupon = async (selectedCode) => {
+    const codeToApply = (selectedCode ?? couponCode).trim().toUpperCase();
+
+    if (!codeToApply) {
       setCouponMessage('Please enter a coupon code.');
       return;
     }
@@ -32,6 +36,7 @@ export default function useCoupon({ cart, navigate }) {
       return;
     }
 
+    setCouponCode(codeToApply);
     setIsApplyingCoupon(true);
     setCouponMessage('');
 
@@ -39,7 +44,7 @@ export default function useCoupon({ cart, navigate }) {
       const data = await validateCoupon(
         {
           products: toOrderProducts(cart, { coerceQuantity: true }),
-          couponCode: couponCode.trim().toUpperCase(),
+          couponCode: codeToApply,
         },
         token,
       );
@@ -63,7 +68,7 @@ export default function useCoupon({ cart, navigate }) {
     setCouponMessage('Coupon removed.');
   };
 
-  // Used after a successful order: forget the coupon without a message.
+  // Used after a successful order.
   const resetCoupon = () => {
     setAppliedCoupon(null);
     setCouponCode('');

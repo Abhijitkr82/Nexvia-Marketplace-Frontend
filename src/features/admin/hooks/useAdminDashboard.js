@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import useAdminAuth from './useAdminAuth';
 import useAdminStats from './useAdminStats';
@@ -5,10 +6,9 @@ import useAdminUsers from './useAdminUsers';
 import useAdminVendors from './useAdminVendors';
 import useAdminProducts from './useAdminProducts';
 import useAdminOrders from './useAdminOrders';
+import useAdminCoupons from './useAdminCoupons';
 import { buildStatCards } from '../utils/statCards';
 
-// Composes every admin data hook, loads all data on mount and exposes a
-// "refresh everything" action.
 export default function useAdminDashboard() {
   const { checkAdmin, logout } = useAdminAuth();
 
@@ -17,6 +17,7 @@ export default function useAdminDashboard() {
   const vendors = useAdminVendors(checkAdmin);
   const products = useAdminProducts(checkAdmin, statsState.fetchStats);
   const orders = useAdminOrders();
+  const coupons = useAdminCoupons(checkAdmin);
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -30,6 +31,7 @@ export default function useAdminDashboard() {
         vendors.fetchVendors(),
         products.fetchProducts(),
         orders.fetchOrders(),
+        coupons.fetchCoupons(),
       ]);
     } finally {
       setRefreshing(false);
@@ -42,6 +44,7 @@ export default function useAdminDashboard() {
     vendors.fetchVendors();
     products.fetchProducts();
     orders.fetchOrders();
+    coupons.fetchCoupons();
   }, []);
 
   return {
@@ -57,5 +60,6 @@ export default function useAdminDashboard() {
     vendors,
     products,
     orders,
+    coupons,
   };
 }

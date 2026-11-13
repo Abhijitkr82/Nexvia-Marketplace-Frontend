@@ -13,8 +13,11 @@ export default function CouponSection({
   couponMessage,
   isApplyingCoupon,
   isCheckingOut,
+  availableCoupons = [],
+  isLoadingOffers = false,
   onCodeChange,
   onApply,
+  onApplyOffer,
   onRemove,
 }) {
   return (
@@ -118,6 +121,75 @@ export default function CouponSection({
           </span>
         </div>
       )}
+
+      {/* Available offers */}
+      <div className="mt-5 border-t border-[#e7ddc9] pt-4">
+        <div className="mb-3 flex items-center justify-between">
+          <h4 className="flex items-center gap-2 text-sm font-black text-[#101b35]">
+            <Tag size={16} className="text-[#a17a3d]" />
+            Available Offers
+          </h4>
+
+          <span className="text-[11px] font-semibold text-slate-500">
+            {availableCoupons.length} offers
+          </span>
+        </div>
+
+        {isLoadingOffers ? (
+          <p className="rounded-xl bg-white px-3 py-4 text-center text-xs text-slate-500">
+            Loading available offers...
+          </p>
+        ) : availableCoupons.length === 0 ? (
+          <p className="rounded-xl bg-white px-3 py-4 text-center text-xs text-slate-500">
+            No available offers right now.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {availableCoupons.map((offer) => (
+              <div
+                key={offer._id || offer.code}
+                className="flex items-center justify-between gap-3 rounded-xl border border-[#eadfc9] bg-white p-3"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-black text-[#101b35]">
+                    {offer.discountType === 'percentage'
+                      ? `${offer.discountValue}% OFF`
+                      : `${formatPrice(offer.discountValue)} OFF`}
+                  </p>
+
+                  <p className="mt-0.5 text-xs font-bold tracking-wide text-[#a17a3d]">
+                    {offer.code}
+                  </p>
+
+                  <p className="mt-1 text-[11px] text-slate-500">
+                    Minimum order: {formatPrice(offer.minOrderAmount || 0)}
+                    {offer.discountType === 'percentage' &&
+                      offer.maxDiscount > 0 &&
+                      ` · Max discount ${formatPrice(offer.maxDiscount)}`}
+                  </p>
+
+                  <p className="mt-1 text-[10px] text-slate-400">
+                    Expires: {new Date(offer.expiresAt).toLocaleDateString()}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => onApplyOffer(offer.code)}
+                  disabled={
+                    isApplyingCoupon ||
+                    isCheckingOut ||
+                    !!appliedCoupon
+                  }
+                  className="shrink-0 rounded-lg bg-[#101b35] px-3 py-2 text-xs font-bold text-white transition hover:bg-[#203456] disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {isApplyingCoupon ? 'Checking...' : 'Apply Offer'}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </section>
   );
 }

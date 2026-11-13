@@ -1,4 +1,5 @@
 
+import { useEffect, useState } from 'react';
 import CartDrawerHeader from './CartDrawerHeader';
 import EmptyCart from './EmptyCart';
 import CartItemsSection from './CartItemsSection';
@@ -6,6 +7,8 @@ import ShippingAddressSection from './ShippingAddressSection';
 import CouponSection from './CouponSection';
 import PaymentMethodSection from './PaymentMethodSection';
 import CartSummary from './CartSummary';
+import { API_BASE_URL } from '../../../../config/api';
+import { getToken } from '../../../../utils/authStorage';
 
 // Slide-in cart and checkout drawer.
 export default function CartDrawer({
@@ -30,6 +33,53 @@ export default function CartDrawer({
     setPaymentMethod,
     handleCheckout,
   } = checkout;
+
+  const [availableCoupons, setAvailableCoupons] = useState([]);
+  const [isLoadingOffers, setIsLoadingOffers] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchAvailableOffers = async () => {
+      const token = getToken();
+
+      if (!token) return;
+
+      setIsLoadingOffers(true);
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/coupons/available`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Unable to fetch offers');
+        }
+
+        const data = await response.json();
+
+        if (!cancelled) {
+          setAvailableCoupons(data.coupons || []);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setAvailableCoupons([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingOffers(false);
+        }
+      }
+    };
+
+    fetchAvailableOffers();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const isErrorMessage =
     orderMessage &&
@@ -96,8 +146,11 @@ export default function CartDrawer({
                 couponMessage={coupon.couponMessage}
                 isApplyingCoupon={coupon.isApplyingCoupon}
                 isCheckingOut={isCheckingOut}
+                availableCoupons={availableCoupons}
+                isLoadingOffers={isLoadingOffers}
                 onCodeChange={coupon.changeCouponCode}
                 onApply={coupon.applyCoupon}
+                onApplyOffer={coupon.applyCoupon}
                 onRemove={coupon.removeCoupon}
               />
 

@@ -34,6 +34,8 @@ A modern React-based frontend for **Nexvia**, a multi-vendor e-commerce marketpl
 - Manage users and vendors
 - Manage products and orders
 - Marketplace administration
+- Create and manage discount coupons
+- Update coupon discounts, expiry dates and usage  limits
 
 ### General
 - JWT-based authentication
